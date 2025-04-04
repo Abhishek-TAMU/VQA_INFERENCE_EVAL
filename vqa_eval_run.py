@@ -1,9 +1,7 @@
-import sys
-import os
 import json
-import random
 import matplotlib.pyplot as plt
-import skimage.io as io
+from vqa import VQA
+from vqa_eval import VQAEval
 
 # Set up file names and paths
 dataDir = 'datasets'
@@ -28,20 +26,9 @@ fileTypes   = ['accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']
     for fileType in fileTypes
 ]
 
-# Import VQA classes (make sure the vqa.py and vqa_eval.py files are in your PYTHONPATH)
-from vqa import VQA
-from vqa_eval import VQAEval
-
 # Create VQA object using the full annotations and question files.
 vqa = VQA(annFile, quesFile)
 
-# Load results from our saved output_json_path.
-# --- IMPORTANT MODIFICATION in loadRes: ---
-# In the original code, the assertion required that the set of result question IDs exactly matches all ground truth question IDs.
-# Here, you should modify that assertion (in vqa.py) to allow a subset:
-#
-#     assert set(annsQuesIds).issubset(set(self.getQuesIds())), "..."
-#
 # This change lets you evaluate only on the questions present in your output file.
 vqaRes = vqa.loadRes(output_json_path, quesFile)
 
@@ -62,27 +49,6 @@ print("\nPer Answer Type Accuracy:")
 for ansType, acc in vqaEval.accuracy['perAnswerType'].items():
     print("%s : %.02f" % (ansType, acc))
 print("\n")
-
-# Demonstrate how to use evalQA to retrieve low score results.
-# evals = [quesId for quesId in vqaEval.evalQA if vqaEval.evalQA[quesId] < 35]  # 35 is per question percentage accuracy
-# if len(evals) > 0:
-#     print('Ground truth answers:')
-#     randomEval = random.choice(evals)
-#     randomAnn = vqa.loadQA(randomEval)
-#     vqa.showQA(randomAnn)
-
-#     print('\n')
-#     print('Generated answer (accuracy %.02f)' % (vqaEval.evalQA[randomEval]))
-#     ann = vqaRes.loadQA(randomEval)[0]
-#     print("Answer:   %s\n" % (ann['answer']))
-
-#     imgId = randomAnn[0]['image_id']
-#     imgFilename = 'COCO_' + dataSubType + '_' + str(imgId).zfill(12) + '.jpg'
-#     if os.path.isfile(os.path.join(imgDir, imgFilename)):
-#         I = io.imread(os.path.join(imgDir, imgFilename))
-#         plt.imshow(I)
-#         plt.axis('off')
-#         plt.show()
 
 # Plot accuracy for various question types.
 plt.bar(range(len(vqaEval.accuracy['perQuestionType'])),
@@ -105,6 +71,7 @@ with open(evalQuesTypeFile, 'w') as f:
     json.dump(vqaEval.evalQuesType, f)
 with open(evalAnsTypeFile, 'w') as f:
     json.dump(vqaEval.evalAnsType, f)
+
 print('Results saved to:')
 print('Accuracy file: %s' % (accuracyFile))
 print('EvalQA file: %s' % (evalQAFile))

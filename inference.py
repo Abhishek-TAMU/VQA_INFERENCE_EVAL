@@ -29,6 +29,7 @@ def get_formatted_question(question):
         }
     ]
 
+
 def process_generated_answer(answer):
     # "user\n\nWhere is the playing?assistant\n\nThe playing is taking place on a street."
     # Just get the answer after assistant\n\n
@@ -55,6 +56,7 @@ def load_vqa_questions(path, num_samples):
     # return selected_questions
     
     return random.sample(questions_data, num_samples)
+
 
 def construct_image_path(image_id, base_dir):
     filename = f"COCO_val2014_{str(image_id).zfill(12)}.jpg"
@@ -109,6 +111,7 @@ def run_batch_inference(model, processor, tokenizer, device, questions_list, ima
 
     return results
 
+
 def main(args):
     # Configurable paths
     MODEL_NAME = args.model_path
@@ -144,6 +147,7 @@ def main(args):
         with open(output_json_path, "w") as f:
             json.dump(results, f, indent=4)
         print(f"\n✅ Saved {len(results)} results to {output_json_path}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run VQA inference with tuned LLaMA vision model.")
