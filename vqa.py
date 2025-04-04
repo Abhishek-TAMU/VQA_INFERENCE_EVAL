@@ -1,6 +1,3 @@
-__author__ = 'aagrawal'
-__version__ = '0.9'
-
 import json
 import datetime
 import copy

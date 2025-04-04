@@ -1,7 +1,3 @@
-# coding=utf-8
-
-__author__ = 'aagrawal'
-
 import re
 import sys
 
