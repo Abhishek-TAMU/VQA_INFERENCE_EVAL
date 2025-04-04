@@ -6,21 +6,82 @@ from PIL import Image
 from tqdm import tqdm
 import torch
 from transformers import AutoTokenizer, AutoProcessor, AutoModelForVision2Seq
+# system_message = "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."
+system_message = "Just give answer in 1 word/number."
+
+def get_formatted_question(question):
+    return [
+        {
+            "role": "system",
+            "content": system_message,
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                },
+                {
+                    "type": "text",
+                    "text": question,
+                },
+            ],
+        }
+    ]
+
+def process_generated_answer(answer):
+    # "user\n\nWhere is the playing?assistant\n\nThe playing is taking place on a street."
+    # Just get the answer after assistant\n\n
+    # print("Raw answer:", answer)
+    if "assistant" in answer:
+        answer = answer.split("assistant")[1]
+    # Remove everything after the first period
+    if "." in answer:
+        answer = answer.split(".")[0]
+    # Remove all \n
+    answer = answer.replace("\n", "")
+    return answer.strip()
+    
 
 def load_vqa_questions(path, num_samples):
     with open(path, 'r') as f:
         questions_data = json.load(f)['questions']
+
+    # selected_questions = []
+    # for q in questions_data:
+    #     if q['question_id'] == 158254000 or q['question_id'] == 201561001:
+    #         selected_questions.append(q)     
+
+    # return selected_questions
+    
     return random.sample(questions_data, num_samples)
 
 def construct_image_path(image_id, base_dir):
     filename = f"COCO_val2014_{str(image_id).zfill(12)}.jpg"
     return os.path.join(base_dir, filename)
 
+
 def generate_answer(model, processor, tokenizer, device, image, question, max_new_tokens=50):
-    inputs = processor(text=question, images=image, return_tensors="pt", padding=True)
+    # print("Raw question:", question)
+    # print("PIL image:", image)
+    question_formatted = get_formatted_question(question)
+    question_templated = tokenizer.apply_chat_template(question_formatted, tokenize=False)
+
+    # print("🔄 Chat Templated Question", question_templated)
+    inputs = processor(text=question_templated, images=image, return_tensors="pt", padding=True)
+
     inputs = {k: v.to(device) for k, v in inputs.items()}
+    # print("🔄 Generating answer...")
     output = model.generate(**inputs, max_new_tokens=max_new_tokens)
-    return tokenizer.decode(output[0], skip_special_tokens=True)
+    # print("🔄 Done generating answer...")
+
+
+    generated_answer = tokenizer.decode(output[0], skip_special_tokens=True)
+    # print("Generated answer:", generated_answer)
+    # processed_response = process_generated_answer(generated_answer)
+    # print("Processed answer:", processed_response)
+    return generated_answer
+
 
 def run_batch_inference(model, processor, tokenizer, device, questions_list, images_dir):
     results = []
@@ -72,11 +133,17 @@ def main(args):
     # Run inference
     results = run_batch_inference(model, processor, tokenizer, device, questions_list, images_dir)
 
+    # Process results
+    for result in results:
+        processed_response = process_generated_answer(result['answer'])
+        result['answer'] = processed_response
+
     # Save results
-    os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
-    with open(output_json_path, "w") as f:
-        json.dump(results, f, indent=4)
-    print(f"\n✅ Saved {len(results)} results to {output_json_path}")
+    if results:
+        os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
+        with open(output_json_path, "w") as f:
+            json.dump(results, f, indent=4)
+        print(f"\n✅ Saved {len(results)} results to {output_json_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run VQA inference with tuned LLaMA vision model.")

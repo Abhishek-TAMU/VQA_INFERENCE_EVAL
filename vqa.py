@@ -152,7 +152,7 @@ class VQA:
         # anns = anns['annotations'] if 'annotations' in anns else anns
         assert type(anns) == list, 'Results is not an array of objects'
         annsQuesIds = [ann['question_id'] for ann in anns]
-        assert set(annsQuesIds) == set(self.getQuesIds()), (
+        assert set(annsQuesIds).issubset(set(self.getQuesIds())), (
             'Results do not correspond to current VQA set. Either the results do not have predictions for all question ids '
             'in annotation file or there is at least one question id that does not belong to the question ids in the annotation file.'
         )
