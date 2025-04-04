@@ -6,11 +6,11 @@ import torch
 from transformers import AutoTokenizer, AutoProcessor, AutoModelForCausalLM
 
 # Replace with your model's repository or local path.
-MODEL_NAME = "your-tuned-llama-vision-model"
+MODEL_NAME = "meta-llama/Llama-3.2-11B-Vision-Instruct"
 
 # Directories for VQA data (adjust these paths as needed)
-questions_file = "path/to/v2_OpenEnded_mscoco_val2014_questions.json"
-images_dir = "path/to/Images/mscoco/val2014/"
+questions_file = "datasets/Questions/v2_OpenEnded_mscoco_val2014_questions.json"
+images_dir = "datasets/Images/mscoco/val2014"
 
 # Load the processor, tokenizer, and model.
 processor = AutoProcessor.from_pretrained(MODEL_NAME)
@@ -48,8 +48,10 @@ def load_vqa_question(questions_json_path: str):
     """
     with open(questions_json_path, 'r') as f:
         data = json.load(f)
+
     # VQAv2 questions are typically under the "questions" key.
     questions = data['questions']
+
     # Pick a random question.
     q = random.choice(questions)
     return q['question'], q['image_id'], q['question_id']
@@ -123,5 +125,6 @@ if __name__ == "__main__":
     print("Generated Answer:", answer)
     
     # Save the answer with the question ID to a JSON file.
-    output_json_path = "result.json"  # Change path/filename if needed.
+    result_file_name = "v2_OpenEnded_mscoco_val2014_vqav2_results.json"
+    output_json_path = f"datasets/Results/llama_vision/{result_file_name}"  # Change path/filename if needed.
     save_result(question_id, answer, output_json_path)

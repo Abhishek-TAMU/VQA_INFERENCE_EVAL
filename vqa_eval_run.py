@@ -21,7 +21,7 @@ dataSubType = 'val2014'
 annFile     = f'{dataDir}/Annotations/{versionType}{dataType}_{dataSubType}_annotations.json'
 quesFile    = f'{dataDir}/Questions/{versionType}{taskType}_{dataType}_{dataSubType}_questions.json'
 imgDir      = f'{dataDir}/Images/{dataType}/{dataSubType}/'
-resultType  = 'fake'
+resultType  = "vqav2"
 model_type  = 'llama_vision'
 fileTypes   = ['results', 'accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']
 
