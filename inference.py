@@ -52,9 +52,11 @@ def main(args):
     # Configurable paths
     MODEL_NAME = args.model_path
     questions_file = "datasets/Questions/v2_OpenEnded_mscoco_val2014_questions.json"
-    images_dir = "datasets/Images/mscoco/val2014"
-    result_file_name = "v2_OpenEnded_mscoco_val2014_vqav2_results.json"
-    output_json_path = f"datasets/Results/llama_vision/{result_file_name}"
+    images_dir = args.images_dir
+
+    # Output file name
+    output_file_name = "v2_OpenEnded_mscoco_val2014_vqav2_results.json"
+    output_json_path = f"datasets/Results/llama_vision/{output_file_name}"
 
     # Load model, processor, tokenizer
     print(f"🔄 Loading model from: {MODEL_NAME}")
@@ -89,6 +91,12 @@ if __name__ == "__main__":
         type=int,
         default=50,
         help="Number of image-question pairs to run inference on (default: 50)"
+    )
+    parser.add_argument(
+        "--images_dir",
+        type=str,
+        default="datasets/Images/mscoco/val2014",
+        help="HuggingFace mscoco vqa v2 dataset image directory (default: datasets/Images/mscoco/val2014)"
     )
 
     args = parser.parse_args()
