@@ -152,7 +152,7 @@ class VQA:
         with open(resFile, 'r') as f:
             anns = json.load(f)
         # print("TEST", len(anns["annotations"]), anns["annotations"][0])
-        anns = anns['annotations'] if 'annotations' in anns else anns
+        # anns = anns['annotations'] if 'annotations' in anns else anns
         assert type(anns) == list, 'Results is not an array of objects'
         annsQuesIds = [ann['question_id'] for ann in anns]
         assert set(annsQuesIds) == set(self.getQuesIds()), (

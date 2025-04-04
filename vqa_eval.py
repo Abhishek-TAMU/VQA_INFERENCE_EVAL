@@ -108,7 +108,7 @@ class VQAEval:
                 ansDic['answer'] = ansDic['answer'].strip()
             # print("res[quesId]", quesId, res[quesId].keys())
             # print("res[quesId]", res[quesId]['answers'])
-            res[quesId]["answer"] = res[quesId]['answers'][0]['answer']
+            # res[quesId]["answer"] = res[quesId]['answers'][0]['answer']
             resAns = res[quesId]['answer']
             resAns = resAns.replace('\n', ' ')
             resAns = resAns.replace('\t', ' ')
